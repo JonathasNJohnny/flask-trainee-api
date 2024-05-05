@@ -4,7 +4,7 @@ from flasgger import Swagger
 app = Flask(__name__)
 swagger = Swagger(app)
 
-@app.route('/')
+@app.route('/helloworld')
 def home():
     return 'Hello, World!'
 
@@ -24,3 +24,6 @@ def example_endpoint():
         description: error
     """
     return jsonify({"message": "Este é um exemplo de endpoint"})
+
+if __name__ == "__main__":
+    app.run(debug=True)
