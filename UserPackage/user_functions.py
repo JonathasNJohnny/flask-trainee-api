@@ -61,5 +61,5 @@ def list_users_students():
         print("---------------------------------")
 
 #print(list_users_students())
-#print(register_student(1, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
+#print(register_student(11111111, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
 #print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
