@@ -1,9 +1,12 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
 from user_routes.user import login_student
+from user_routes.user import user_bp
 
 app = Flask(__name__)
 swagger = Swagger(app)
+
+app.register_blueprint(user_bp)
 
 @app.route('/helloworld')
 def home():
