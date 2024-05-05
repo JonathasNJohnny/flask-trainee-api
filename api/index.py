@@ -5,7 +5,10 @@ from user import user
 app = Flask(__name__)
 swagger = Swagger(app)
 
-app.register_blueprint(user.user_bp)
+try:
+  app.register_blueprint(user.user_bp)
+except:
+    print("ERROR")
 
 @app.route('/helloworld')
 def home():
