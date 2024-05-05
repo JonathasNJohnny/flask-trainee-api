@@ -11,36 +11,33 @@ def teste():
 @user_bp.route('/api/user/login', methods=['POST'])
 def user_login():
     """
-    {}
-    """.format(swagger_login_description.strip())
+    Login
+    ---
+    tags:
+      - Rotas de usuário
+    parameters:
+      - in: body
+        name: login_info
+        description: Informações de login (email e senha)
+        required: true
+        schema:
+          type: object
+          properties:
+            email:
+              type: string
+            senha:
+              type: string
+    responses:
+      200:
+        description: Logado
+    """
     login_info = request.get_json()
     email = login_info.get("email")
     senha = login_info.get("senha")
     response = login_student(email, senha)
     return jsonify({"message": response})
 
-
-
-#DESCRIÇÕES ---
-
-swagger_login_description = """
-Login
----
-tags:
-  - Rotas de usuário
-parameters:
-  - in: body
-    name: login_info
-    description: Informações de login (email e senha)
-    required: true
-    schema:
-      type: object
-      properties:
-        email:
-          type: string
-        senha:
-          type: string
-responses:
-  200:
-    description: Logado
-"""
+@user_bp.route('/testes',methods=['GET'])
+def teste():
+    print("Hello world")
+    return "Testante"
