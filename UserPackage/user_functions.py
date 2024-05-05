@@ -2,13 +2,6 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import bcrypt, re
 
-from flask import Blueprint
-user_bp = Blueprint('user_bp', __name__)
-@user_bp.route('/teste',methods=['GET'])
-def teste():
-    return "hello"
-
-
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 
 def login_student(email, senha):
