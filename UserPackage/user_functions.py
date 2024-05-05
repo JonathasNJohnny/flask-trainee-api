@@ -10,9 +10,9 @@ def login_student(email, senha):
     mydb = client["projectTrainee"]
     mycollection = mydb["aluno"]
 
-    aluno = mycollection.find_one({"Email": email})
+    aluno = mycollection.find_one({"email": email})
     if aluno:
-        if bcrypt.checkpw(senha.encode('utf-8'), aluno["Senha"].encode('utf-8')):
+        if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
             return "Login bem-sucedido!", 200
         else:
             return "Senha incorreta.", 404
@@ -29,16 +29,16 @@ def register_student(matricula, nome, email, senha):
     if not re.match(r'^[\w\.-]+@aluno\.uepb\.edu\.br$', email):
         return "O email deve ser do domínio aluno.uepb.edu.br"
 
-    if mycollection.find_one({"Email": email}):
+    if mycollection.find_one({"email": email}):
         return "Email já cadastrado, por favor, utilize outro email."
     
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
     aluno = {
-        "Matricula": matricula,
-        "Nome": nome,
-        "Email": email,
-        "Senha": user_senha.decode('utf-8')
+        "matricula": matricula,
+        "nome": nome,
+        "email": email,
+        "senha": user_senha.decode('utf-8')
     }
 
     mycollection.insert_one(aluno)
@@ -54,10 +54,10 @@ def list_users_students():
     alunos = mycollection.find()
 
     for aluno in alunos:
-        print("Matrícula:", aluno["Matricula"])
-        print("Nome:", aluno["Nome"])
-        print("Email:", aluno["Email"])
-        print("Senha:", aluno["Senha"])
+        print("Matrícula:", aluno["matricula"])
+        print("Nome:", aluno["nome"])
+        print("Email:", aluno["email"])
+        print("Senha:", aluno["senha"])
         print("---------------------------------")
 
 #print(list_users_students())
