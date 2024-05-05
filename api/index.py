@@ -29,7 +29,7 @@ def user_login():
       200:
         description: Logado
     """
-    response = "user.login()"
+    response = user.login()
     return jsonify({"message": response})
 
 if __name__ == "__main__":
