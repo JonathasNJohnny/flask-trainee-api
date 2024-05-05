@@ -1,29 +1,36 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
+from user import user
 
 app = Flask(__name__)
 swagger = Swagger(app)
 
 @app.route('/helloworld')
 def home():
-    return 'Hello, World!'
-
-@app.route('/about')
-def about():
-    return 'About'
-
-@app.route('/api/example', methods=['GET'])
-def example_endpoint():
     """
-    Exemplo de endpoint
+    Hello World Endpoint
     ---
+    tags:
+      - Rotas de testes
     responses:
       200:
-        description: Este é um exemplo de endpoint
-      404:
-        description: error
+        description: Hello World
     """
-    return jsonify({"message": "Este é um exemplo de endpoint"})
+    return 'Hello, World!'
+
+@app.route('/api/user/login', methods=['GET'])
+def user_login():
+    """
+    Login
+    ---
+    tags:
+      - Rotas de usuário
+    responses:
+      200:
+        description: Logado
+    """
+    response = user.login()
+    return jsonify({"message": response})
 
 if __name__ == "__main__":
     app.run(debug=True)
