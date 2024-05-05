@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
-from user_routes.user import login
+from user_routes.user import login_student
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -29,7 +29,7 @@ def user_login():
       200:
         description: Logado
     """
-    response = login()
+    response = login_student()
     return jsonify({"message": response})
 
 if __name__ == "__main__":

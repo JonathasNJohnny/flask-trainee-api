@@ -13,11 +13,11 @@ def login_student(email, senha):
     aluno = mycollection.find_one({"Email": email})
     if aluno:
         if bcrypt.checkpw(senha.encode('utf-8'), aluno["Senha"].encode('utf-8')):
-            return "Login bem-sucedido!"
+            return "Login bem-sucedido!", 200
         else:
-            return "Senha incorreta."
+            return "Senha incorreta.", 404
     else:
-        return "Usuário não encontrado."
+        return "Usuário não encontrado.", 405
 
 
 def register_student(matricula, nome, email, senha):
