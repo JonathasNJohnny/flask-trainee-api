@@ -1,14 +1,8 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
-from user import user
 
 app = Flask(__name__)
 swagger = Swagger(app)
-
-try:
-  app.register_blueprint(user.user_bp)
-except:
-    print("ERROR")
 
 @app.route('/helloworld')
 def home():
