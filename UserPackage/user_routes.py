@@ -8,7 +8,7 @@ def teste():
     print("Hello world")
     return "hello"
 
-@user_bp.route('/api/user/login', methods=['GET'])
+@user_bp.route('/api/user/login', methods=['POST'])
 def user_login():
     """
     {}
