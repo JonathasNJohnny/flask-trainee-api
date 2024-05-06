@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from UserPackage.user_functions import login_student
+from UserPackage.user_functions import list_users_students
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -13,5 +14,5 @@ def user_login():
     data = request.get_json()
     email = data.get("email")
     senha = data.get("senha")
-    result = login_student(email, senha)
+    result = list_users_students()
     return result

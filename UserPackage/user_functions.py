@@ -5,7 +5,19 @@ import bcrypt, re
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 
 def login_student(email, senha):
-    return "Usuário não encontrado."
+    client = MongoClient(uri, server_api=ServerApi('1'))
+
+    mydb = client["projectTrainee"]
+    mycollection = mydb["aluno"]
+
+    aluno = mycollection.find_one({"email": email})
+    if aluno:
+        if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
+            return "Login bem-sucedido!"
+        else:
+            return "Senha incorreta."
+    else:
+        return "Usuário não encontrado."
 
 
 def register_student(matricula, nome, email, senha):
@@ -40,14 +52,10 @@ def list_users_students():
     mycollection = mydb["aluno"]
 
     alunos = mycollection.find()
-
+    students = ""
     for aluno in alunos:
-        print("Matrícula:", aluno["matricula"])
-        print("Nome:", aluno["nome"])
-        print("Email:", aluno["email"])
-        print("Senha:", aluno["senha"])
-        print("---------------------------------")
+        students = students + str(aluno)
+    return students
 
-#print(list_users_students())
 #print(register_student(11111111, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
 #print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
