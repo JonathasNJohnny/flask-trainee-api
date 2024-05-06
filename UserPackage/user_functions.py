@@ -54,12 +54,21 @@ def list_users_students():
     alunos = mycollection.find()
 
     for aluno in alunos:
-        print("Matrícula:", aluno["Matricula"])
-        print("Nome:", aluno["Nome"])
-        print("Email:", aluno["Email"])
-        print("Senha:", aluno["Senha"])
+        print("Matrícula:", aluno["matricula"])
+        print("Nome:", aluno["nome"])
+        print("Email:", aluno["email"])
+        print("Senha:", aluno["senha"])
         print("---------------------------------")
 
+def mongo_db_ping():
+    client = MongoClient(uri)
+    try:
+      client.admin.command('ping')
+      return "Pinged your deployment. You successfully connected to MongoDB!"
+    except Exception as e:
+      return e
+
+#print(mongo_db_ping())
 #print(list_users_students())
 #print(register_student(11111111, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
 #print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
