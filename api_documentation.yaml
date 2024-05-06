@@ -1,0 +1,39 @@
+swagger: '2.0'
+info:
+  title: API Documentation
+  description: Documentação para todas as rotas da API.
+  version: '1.0'
+host: example.com
+basePath: /
+schemes:
+  - https
+tags:
+  - name: Rotas de usuário
+    description: Rotas relacionadas aos usuários
+paths:
+  /api/user/login:
+    post:
+      tags:
+        - Rotas de usuário
+      summary: Fazer login
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: login_info
+          description: Informações de login (email e senha)
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              senha:
+                type: string
+      responses:
+        '200':
+          description: Login bem-sucedido!
+        '404':
+          description: Senha incorreta!
+        '405':
+          description: Usuário não encontrado!

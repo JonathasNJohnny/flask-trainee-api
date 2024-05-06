@@ -3,29 +3,26 @@ from pymongo.server_api import ServerApi
 import bcrypt, re
 
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
+client = MongoClient(uri, server_api=ServerApi('1'))
+mydb = client["projectTrainee"]
+mycollection = mydb["aluno"]
+
+def get_next_id():
+    count = mycollection.count_documents({})
+    return count + 1
 
 def login_student(email, senha):
-    client = MongoClient(uri, server_api=ServerApi('1'))
-
-    mydb = client["projectTrainee"]
-    mycollection = mydb["aluno"]
-
     aluno = mycollection.find_one({"Email": email})
     if aluno:
         if bcrypt.checkpw(senha.encode('utf-8'), aluno["Senha"].encode('utf-8')):
             return "Login bem-sucedido!", 200
         else:
-            return "Senha incorreta.", 404
+            return "Senha incorreta!", 404
     else:
-        return "Usuário não encontrado.", 405
+        return "Usuário não encontrado!", 405
 
 
 def register_student(matricula, nome, email, senha):
-    client = MongoClient(uri, server_api=ServerApi('1'))
-
-    mydb = client["projectTrainee"]
-    mycollection = mydb["aluno"]
-
     if not re.match(r'^[\w\.-]+@aluno\.uepb\.edu\.br$', email):
         return "O email deve ser do domínio aluno.uepb.edu.br"
 
@@ -34,7 +31,10 @@ def register_student(matricula, nome, email, senha):
     
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
+    aluno_id = get_next_id()
+
     aluno = {
+        "id": aluno_id,
         "Matricula": matricula,
         "Nome": nome,
         "Email": email,
@@ -46,18 +46,14 @@ def register_student(matricula, nome, email, senha):
     return "Usuário registrado com sucesso!"
 
 def list_users_students():
-    client = MongoClient(uri, server_api=ServerApi('1'))
-
-    mydb = client["projectTrainee"]
-    mycollection = mydb["aluno"]
-
     alunos = mycollection.find()
 
     for aluno in alunos:
-        print("Matrícula:", aluno["matricula"])
-        print("Nome:", aluno["nome"])
-        print("Email:", aluno["email"])
-        print("Senha:", aluno["senha"])
+        print("ID:", aluno["id"])
+        print("Matrícula:", aluno["Matricula"])
+        print("Nome:", aluno["Nome"])
+        print("Email:", aluno["Email"])
+        print("Senha:", aluno["Senha"])
         print("---------------------------------")
 
 def mongo_db_ping():
@@ -71,4 +67,4 @@ def mongo_db_ping():
 #print(mongo_db_ping())
 #print(list_users_students())
 #print(register_student(11111111, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
-#print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
+print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
