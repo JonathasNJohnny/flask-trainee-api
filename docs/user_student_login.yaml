@@ -1,0 +1,23 @@
+Login
+---
+tags:
+  - Rotas de usuário
+parameters:
+  - in: body
+    name: login_info
+    description: Informações de login (email e senha)
+    required: true
+    schema:
+      type: object
+      properties:
+        email:
+          type: string
+        senha:
+          type: string
+responses:
+  200:
+    description: Login bem-sucedido! + Dados do aluno
+  405:
+    description: Usuário não encontrado!
+  406:
+    description: Senha incorreta!

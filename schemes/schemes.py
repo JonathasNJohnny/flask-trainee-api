@@ -10,14 +10,12 @@ mydb = client["projectTrainee"]
 mycollection = mydb["aluno"]
 
 schema = {
-    "id": "int",
     "matricula": "int",
     "nome": "str",
     "email": "str",
     "senha": "str"
 }
 
-mycollection.create_index("id", unique=True)
 mycollection.create_index("matricula", unique=True)
 mycollection.create_index("email", unique=True)
 

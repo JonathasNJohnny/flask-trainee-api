@@ -1,0 +1,27 @@
+Registro
+---
+tags:
+  - Rotas de usuário
+parameters:
+  - in: body
+    name: register_info
+    description: Informações de registro (matrícula, nome, email e senha)
+    required: true
+    schema:
+      type: object
+      properties:
+        matricula:
+          type: integer
+        nome:
+          type: string
+        email:
+          type: string
+        senha:
+          type: string
+responses:
+  200:
+    description: Usuário registrado com sucesso!
+  405:
+    description: O email deve ser do domínio aluno.uepb.edu.br!
+  406:
+    description: Email já cadastrado, por favor, utilize outro email!
