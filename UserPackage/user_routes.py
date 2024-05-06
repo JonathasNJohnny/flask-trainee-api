@@ -10,29 +10,8 @@ def teste():
 
 @user_bp.route('/api/user/login', methods=['POST'])
 def user_login():
-    """
-    Login
-    ---
-    tags:
-      - Rotas de usuário
-    parameters:
-      - in: body
-        name: login_info
-        description: Informações de login (email e senha)
-        required: true
-        schema:
-          type: object
-          properties:
-            email:
-              type: string
-            senha:
-              type: string
-    responses:
-      200:
-        description: Logado
-    """
     data = request.get_json()
     email = data.get("email")
     senha = data.get("senha")
-    result = login_student(email, senha)
+    result = email+senha
     return result
