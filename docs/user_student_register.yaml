@@ -25,3 +25,5 @@ responses:
     description: O email deve ser do domínio aluno.uepb.edu.br!
   406:
     description: Email já cadastrado, por favor, utilize outro email!
+  407:
+    description: Matricula já cadastrada, por favor, utilize a sua matrícula!
