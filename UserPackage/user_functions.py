@@ -40,7 +40,7 @@ def register_student(matricula, nome, email, senha):
             "code": 405
             }
 
-    if mycollection.find_one({"Email": email}):
+    if mycollection.find_one({"email": email}):
         return {
             "message": "Email já cadastrado, por favor, utilize outro email!", 
             "code": 406
