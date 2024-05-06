@@ -31,8 +31,8 @@ def user_login():
       200:
         description: Logado
     """
-    login_info = request.get_json()
-    email = login_info.get("email")
-    senha = login_info.get("senha")
-    response = login_student(email, senha)
-    return jsonify({"message": response})
+    data = request.get_json()
+    email = data.get("email")
+    senha = data.get("senha")
+    result = login_student(email, senha)
+    return result
