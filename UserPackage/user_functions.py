@@ -10,14 +10,14 @@ def login_student(email, senha):
     mydb = client["projectTrainee"]
     mycollection = mydb["aluno"]
 
-    aluno = mycollection.find_one({"email": email})
+    aluno = mycollection.find_one({"Email": email})
     if aluno:
-        if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
-            return "Login bem-sucedido!"
+        if bcrypt.checkpw(senha.encode('utf-8'), aluno["Senha"].encode('utf-8')):
+            return "Login bem-sucedido!", 200
         else:
-            return "Senha incorreta."
+            return "Senha incorreta.", 404
     else:
-        return "Usuário não encontrado."
+        return "Usuário não encontrado.", 405
 
 
 def register_student(matricula, nome, email, senha):
@@ -29,16 +29,16 @@ def register_student(matricula, nome, email, senha):
     if not re.match(r'^[\w\.-]+@aluno\.uepb\.edu\.br$', email):
         return "O email deve ser do domínio aluno.uepb.edu.br"
 
-    if mycollection.find_one({"email": email}):
+    if mycollection.find_one({"Email": email}):
         return "Email já cadastrado, por favor, utilize outro email."
     
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
     aluno = {
-        "matricula": matricula,
-        "nome": nome,
-        "email": email,
-        "senha": user_senha.decode('utf-8')
+        "Matricula": matricula,
+        "Nome": nome,
+        "Email": email,
+        "Senha": user_senha.decode('utf-8')
     }
 
     mycollection.insert_one(aluno)
@@ -52,10 +52,14 @@ def list_users_students():
     mycollection = mydb["aluno"]
 
     alunos = mycollection.find()
-    students = ""
-    for aluno in alunos:
-        students = students + str(aluno)
-    return students
 
+    for aluno in alunos:
+        print("Matrícula:", aluno["Matricula"])
+        print("Nome:", aluno["Nome"])
+        print("Email:", aluno["Email"])
+        print("Senha:", aluno["Senha"])
+        print("---------------------------------")
+
+#print(list_users_students())
 #print(register_student(11111111, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
 #print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
