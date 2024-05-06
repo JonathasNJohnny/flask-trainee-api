@@ -39,11 +39,17 @@ def register_student(matricula, nome, email, senha):
             "message": "O email deve ser do domínio aluno.uepb.edu.br!", 
             "code": 405
             }
-
+    
     if mycollection.find_one({"email": email}):
         return {
             "message": "Email já cadastrado, por favor, utilize outro email!", 
             "code": 406
+            }
+    
+    if mycollection.find_one({"matricula": matricula}):
+        return {
+            "message": "Matricula já cadastrada, por favor, utilize a sua matrícula!", 
+            "code": 407
             }
     
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
