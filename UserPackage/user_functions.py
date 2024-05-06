@@ -5,19 +5,7 @@ import bcrypt, re
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 
 def login_student(email, senha):
-    client = MongoClient(uri, server_api=ServerApi('1'))
-
-    mydb = client["projectTrainee"]
-    mycollection = mydb["aluno"]
-
-    aluno = mycollection.find_one({"email": email})
-    if aluno:
-        if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
-            return "Login bem-sucedido!", 200
-        else:
-            return "Senha incorreta.", 404
-    else:
-        return "Usuário não encontrado.", 405
+    return "Usuário não encontrado."
 
 
 def register_student(matricula, nome, email, senha):
