@@ -13,5 +13,5 @@ def user_login():
     data = request.get_json()
     email = data.get("email")
     senha = data.get("senha")
-    result = email+senha
+    result = login_student(email, senha)
     return result
