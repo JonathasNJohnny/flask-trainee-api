@@ -1,46 +1,26 @@
 from flask import Blueprint, jsonify, request
+from flasgger import swag_from
 from UserPackage.user_functions import login_student
+from UserPackage.user_functions import register_student
 
 user_bp = Blueprint('user_bp', __name__)
 
-@user_bp.route('/',methods=['GET'])
-def teste():
-    print("Hello world")
-    return "hello"
+@user_bp.route('/api/user/student/login', methods=['POST'])
+@swag_from('../docs/user_student_login.yaml')
+def user_student_login():
+    data = request.get_json()
+    email = data.get("email")
+    senha = data.get("senha")
+    result = login_student(email, senha)
+    return result
 
-@user_bp.route('/api/user/login', methods=['GET'])
-def user_login():
-    """
-    {}
-    """.format(swagger_login_description.strip())
-    login_info = request.get_json()
-    email = login_info.get("email")
-    senha = login_info.get("senha")
-    response = login_student(email, senha)
-    return jsonify({"message": response})
-
-
-
-#DESCRIÇÕES ---
-
-swagger_login_description = """
-Login
----
-tags:
-  - Rotas de usuário
-parameters:
-  - in: body
-    name: login_info
-    description: Informações de login (email e senha)
-    required: true
-    schema:
-      type: object
-      properties:
-        email:
-          type: string
-        senha:
-          type: string
-responses:
-  200:
-    description: Logado
-"""
+@user_bp.route('/api/user/student/register', methods=['POST'])
+@swag_from('../docs/user_student_register.yaml')
+def user_student_register():
+    data = request.get_json()
+    matricula = data.get("matricula")
+    nome = data.get("nome")
+    email = data.get("email")
+    senha = data.get("senha")
+    result = register_student(matricula, nome, email, senha)
+    return result
