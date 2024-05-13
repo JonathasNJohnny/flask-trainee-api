@@ -24,3 +24,23 @@ def user_student_register():
     senha = data.get("senha")
     result = register_student(matricula, nome, email, senha)
     return result
+
+@user_bp.route('/api/user/company/registerr', methods=['POST'])
+@swag_from('../docs/user_company_register.yaml')
+def user_company_register():
+    data = request.get_json()
+    cnpj = data.get("cnpj")
+    nomeEmpresa = data.get("nomeEmpresa")
+    email = data.get("email")
+    senha = data.get("senha")
+    result = register_company(cnpj, nomeEmpresa, email, senha)
+    return result
+
+@user_bp.route('/api/user/company/login', methods=['POST'])
+@swag_from('../docs/user_company_login.yaml')
+def user_company_login():
+    data = request.get_json()
+    email = data.get("email")
+    senha = data.get("senha")
+    result = login_company(email, senha)
+    return result
