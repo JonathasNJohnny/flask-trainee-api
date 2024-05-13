@@ -7,6 +7,7 @@ uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryW
 client = MongoClient(uri, server_api=ServerApi('1'))
 mydb = client["projectTrainee"]
 mycollection = mydb["aluno"]
+empresa_collection = mydb["empresa"]
 
 def login_student(email, senha):
     aluno = mycollection.find_one({"email": email})
@@ -61,8 +62,8 @@ def register_student(matricula, nome, email, senha):
         "message": "Usuário registrado com sucesso!",
         }, 200
 
-def login_comany(email, senha):
-    empresa = mycollection_empresa.find_one({"email": email})
+def login_company(email, senha):
+    empresa = empresa_collection.find_one({"email": email})
     if empresa:
         if bcrypt.checkpw(senha.encode('utf-8'), empresa["senha"].encode('utf-8')):
             return jsonify({
@@ -84,7 +85,7 @@ def login_comany(email, senha):
 
 
 def register_company(cnpj, nomeEmpresa, email, senha):
-    if mycollection_empresa.find_one({"email": email}):
+    if empresa_collection.find_one({"email": email}):
         return jsonify({"message":"Email já cadastrado, por favor, utilize outro email!","code": 406}), 406
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
@@ -95,7 +96,7 @@ def register_company(cnpj, nomeEmpresa, email, senha):
         "senha": user_senha.decode('utf-8')
     }
 
-    mycollection_empresa.isert_one(empresa)
+    empresa_collection.isert_one(empresa)
 
     return jsonify({
         "message": "Empresa resgistrada com sucesso!"
