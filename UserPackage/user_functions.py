@@ -1,15 +1,14 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-import bcrypt, re, uuid
+import bcrypt, re
 from flask import jsonify
 
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 client = MongoClient(uri, server_api=ServerApi('1'))
 mydb = client["projectTrainee"]
-mycollection = mydb["aluno"]
-empresa_collection = mydb["empresa"]
 
 def login_student(email, senha):
+    mycollection = mydb["aluno"]
     aluno = mycollection.find_one({"email": email})
     if aluno:
         if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
@@ -32,6 +31,7 @@ def login_student(email, senha):
 
 
 def register_student(matricula, nome, email, senha):
+    mycollection = mydb["aluno"]
     if not re.match(r'^[\w\.-]+@aluno\.uepb\.edu\.br$', email):
         return {
             "message": "O email deve ser do domínio aluno.uepb.edu.br!", 
@@ -63,14 +63,15 @@ def register_student(matricula, nome, email, senha):
         }, 200
 
 def login_company(email, senha):
-    empresa = empresa_collection.find_one({"email": email})
+    mycollection = mydb["empresa"]
+    empresa = mycollection.find_one({"email": email})
     if empresa:
         if bcrypt.checkpw(senha.encode('utf-8'), empresa["senha"].encode('utf-8')):
             return jsonify({
                 "message": "Login bem-sucedido!", 
                 "data": {
                     "cnpj": empresa['cnpj'],
-                    "nomeEmpresa": empresa['momEmpresa'],
+                    "nomeEmpresa": empresa['nomeEmpresa'],
                     "email": empresa['email']
                     }
                 }), 200
@@ -85,7 +86,8 @@ def login_company(email, senha):
 
 
 def register_company(cnpj, nomeEmpresa, email, senha):
-    if empresa_collection.find_one({"email": email}):
+    mycollection = mydb["empresa"]
+    if mycollection.find_one({"email": email}):
         return jsonify({"message":"Email já cadastrado, por favor, utilize outro email!","code": 406}), 406
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
@@ -96,11 +98,11 @@ def register_company(cnpj, nomeEmpresa, email, senha):
         "senha": user_senha.decode('utf-8')
     }
 
-    empresa_collection.isert_one(empresa)
-
+    mycollection.insert_one(empresa)
+    
     return jsonify({
         "message": "Empresa resgistrada com sucesso!"
-        }), 200
+    }), 200
 
 def mongo_db_ping():
     client = MongoClient(uri)
