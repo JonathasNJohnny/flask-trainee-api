@@ -1,4 +1,4 @@
-Registro - Estudante
+Registro - Empresa
 ---
 tags:
   - Rotas de usuário
@@ -10,9 +10,9 @@ parameters:
     schema:
       type: object
       properties:
-        matricula:
+        cnpj:
           type: integer
-        nome:
+        nomeEmpresa:
           type: string
         email:
           type: string
@@ -22,8 +22,8 @@ responses:
   200:
     description: Usuário registrado com sucesso!
   405:
-    description: O email deve ser do domínio aluno.uepb.edu.br!
+    description: Insira um email válido!
   406:
     description: Email já cadastrado, por favor, utilize outro email!
   407:
-    description: Matricula já cadastrada, por favor, utilize a sua matrícula!
+    description: CNPJ já cadastrado, por favor, utilize outro CNPJ!
