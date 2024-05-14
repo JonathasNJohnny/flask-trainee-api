@@ -1,7 +1,6 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import bcrypt, re
-from flask import jsonify
 
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 client = MongoClient(uri, server_api=ServerApi('1'))
@@ -67,28 +66,38 @@ def login_company(email, senha):
     empresa = mycollection.find_one({"email": email})
     if empresa:
         if bcrypt.checkpw(senha.encode('utf-8'), empresa["senha"].encode('utf-8')):
-            return jsonify({
+            return {
                 "message": "Login bem-sucedido!", 
                 "data": {
                     "cnpj": empresa['cnpj'],
                     "nomeEmpresa": empresa['nomeEmpresa'],
                     "email": empresa['email']
                     }
-                }), 200
+                }, 200
         else:
-            return jsonify({
+            return {
                 "message": "Senha incorreta!",
-            }), 406
+            }, 406
     else:
-        return jsonify({
+        return {
             "message": "Empresa não encontrada!",
-        }), 405
+        }, 405
 
 
 def register_company(cnpj, nomeEmpresa, email, senha):
     mycollection = mydb["empresa"]
+    if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        return {
+            "message":"Insira um email válido!"
+            }, 405
     if mycollection.find_one({"email": email}):
-        return jsonify({"message":"Email já cadastrado, por favor, utilize outro email!","code": 406}), 406
+        return {
+            "message":"Email já cadastrado, por favor, utilize outro email!"
+            }, 406
+    if mycollection.find_one({"cnpj": cnpj}):
+        return {
+            "message":"CNPJ já cadastrado, por favor, utilize outro CNPJ!"
+            }, 407
     user_senha = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
     empresa = {
@@ -100,9 +109,9 @@ def register_company(cnpj, nomeEmpresa, email, senha):
 
     mycollection.insert_one(empresa)
     
-    return jsonify({
+    return {
         "message": "Empresa resgistrada com sucesso!"
-    }), 200
+    }, 200
 
 def mongo_db_ping():
     client = MongoClient(uri)
