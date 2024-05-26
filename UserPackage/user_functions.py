@@ -1,8 +1,9 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from DefaultPackage.default_functions import generate_token
-import bcrypt, re, uuid
+from bson.objectid import ObjectId
 from flask import jsonify
+import bcrypt, re
 
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 client = MongoClient(uri, server_api=ServerApi('1'))
@@ -13,14 +14,15 @@ def login_student(email, senha):
     aluno = mycollection.find_one({"email": email})
     if aluno:
         if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
-            token=generate_token(aluno["nome"],email)
+            token=generate_token(aluno["nome"], email)
             return {
                 "message": "Login bem-sucedido!", 
                 "data": {
+                    "id": str(aluno["_id"]),
                     "matricula": aluno["matricula"],
                     "nome": aluno["nome"],
                     "email": aluno["email"],
-                    "token": token
+                    "token": token,
                     }
                 }, 200
         else:
@@ -134,3 +136,10 @@ def mongo_db_ping():
 #print(register_student(11111111, "Joãozinho", "joaozinho@aluno.uepb.edu.br", "12345678"))
 #print(register_student(22222222, "Mariana", "mariana@aluno.uepb.edu.br", "12345678"))
 #print(login_student("joaozinho@aluno.uepb.edu.br", "12345678"))
+
+
+#Quando formos procurar um usuário pelo seu id, temos que passar ele pelo ObjectId
+#id = ObjectId('6653b00e03c020da6d7a0090')
+#mycollection = mydb["aluno"]
+#aluno = mycollection.find_one({"_id": id})
+#print(aluno)
