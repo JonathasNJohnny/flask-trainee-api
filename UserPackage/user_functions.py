@@ -1,6 +1,8 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-import bcrypt, re
+from DefaultPackage.default_functions import generate_token
+import bcrypt, re, uuid
+from flask import jsonify
 
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 client = MongoClient(uri, server_api=ServerApi('1'))
@@ -11,12 +13,14 @@ def login_student(email, senha):
     aluno = mycollection.find_one({"email": email})
     if aluno:
         if bcrypt.checkpw(senha.encode('utf-8'), aluno["senha"].encode('utf-8')):
+            token=generate_token(aluno["nome"],email)
             return {
                 "message": "Login bem-sucedido!", 
                 "data": {
                     "matricula": aluno["matricula"],
                     "nome": aluno["nome"],
-                    "email": aluno["email"]
+                    "email": aluno["email"],
+                    "token": token
                     }
                 }, 200
         else:
