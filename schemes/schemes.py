@@ -17,7 +17,7 @@ aluno_schema = {
     "senha": "str"
 }
 
-aluno_collection.create_index("matricula", unique=True)
+#aluno_collection.create_index("matricula", unique=True)
 aluno_collection.create_index("email", unique=True)
 
 # Criando índices para a coleção Empresa
@@ -46,7 +46,7 @@ vaga_schema = {
 }
 
 # Create the collection with the specified schema
-#aluno_collection.insert_one(aluno_schema)
+aluno_collection.insert_one(aluno_schema)
 #empresa_collection.insert_one(empresa_schema)
 #vaga_collection.insert_one(vaga_schema)
 print(mydb.list_collection_names())
