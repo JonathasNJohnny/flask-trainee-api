@@ -1,4 +1,3 @@
-import jwt
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -15,28 +14,3 @@ def mongo_ping():
          }
     except Exception as e:
       return e, 404
-
-secret = "@@@12345678@@@"
-def generate_token(username, email):
-    payload_data ={
-        'username': username,
-        'email': email,
-        #'exp': int(time.time()) + expiration_time
-    }
-    token = jwt.encode(
-        payload=payload_data,
-        key=secret,
-        algorithm='HS256',
-    )
-    return token
-
-def validate_token(token):
-  try:
-    decoded_payload = jwt.decode(token, secret, algorithms=["HS256"])
-    print(f"decoded_payload: ${decoded_payload}")
-    return f"decoded_payload: ${decoded_payload}"
-  except jwt.InvalidTokenError:
-     print("Invalid Token!!!")
-     return "invalid_token"
-  except:
-    print("unknow error")
