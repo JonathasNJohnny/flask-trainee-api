@@ -18,6 +18,7 @@ def mongo_ping():
 
 secret = "@@@12345678@@@"
 def generate_token(username, email):
+  try:
     payload_data ={
         'username': username,
         'email': email,
@@ -29,6 +30,9 @@ def generate_token(username, email):
         algorithm='HS256',
     )
     return token
+  except:
+    return "unknow error"
+  
 
 def validate_token(token):
   try:
