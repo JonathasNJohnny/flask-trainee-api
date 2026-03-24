@@ -1,0 +1,9 @@
+Ping
+---
+tags:
+  - Rotas de teste
+responses:
+  200:
+    description: Pinged your deployment. You successfully connected to MongoDB!
+  404:
+    description: Error Description!
