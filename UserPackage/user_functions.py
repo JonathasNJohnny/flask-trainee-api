@@ -5,6 +5,7 @@ from bson.objectid import ObjectId
 from flask import jsonify
 import bcrypt, re
 
+#createEnv
 uri = "mongodb+srv://Johnny:sNfnsk5gMPjAOzwV@trainee.005wfc6.mongodb.net/?retryWrites=true&w=majority&appName=Trainee"
 client = MongoClient(uri, server_api=ServerApi('1'))
 mydb = client["projectTrainee"]
