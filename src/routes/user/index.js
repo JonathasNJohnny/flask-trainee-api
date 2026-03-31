@@ -9,6 +9,22 @@ const router = Router();
  *   post:
  *     summary: Registra um novo usuário
  *     description: Registra um novo usuário
+ *     parameters:
+ *       - in: query
+ *         name: data
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         example: 2026-03-31
+ *         description: Data do registro
+ *       - in: query
+ *         name: time
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "14:30"
+ *         description: Horario do registro
  *     requestBody:
  *       required: true
  *       content:
