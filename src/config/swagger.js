@@ -1,5 +1,9 @@
 import swaggerJSDoc from "swagger-jsdoc";
 
+const serverUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : process.env.API_BASE_URL || "http://localhost:43321";
+
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -10,7 +14,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
+        url: serverUrl,
       },
     ],
   },
