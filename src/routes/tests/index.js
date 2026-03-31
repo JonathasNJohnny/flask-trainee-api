@@ -13,7 +13,7 @@ const router = Router();
  *       200:
  *         description: Sucesso
  */
-router.get("/test", (req, res) => {
+router.get("/test", () => {
   const result = testFromTest();
   res.send(result);
 });
