@@ -1,4 +1,4 @@
-export const register = (userData) => {
+export const register = (userData, query) => {
   const processedData = {
     name: userData.name,
     email: userData.email,
