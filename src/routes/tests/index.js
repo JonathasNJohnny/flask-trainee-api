@@ -7,6 +7,7 @@ const router = Router();
  * @swagger
  * /test/tests:
  *   get:
+ *     tags: [Test]
  *     summary: Apenas uma rota de testes
  *     description: Apenas uma rota de testes
  *     responses:

@@ -7,6 +7,7 @@ const router = Router();
  * @swagger
  * /user/register:
  *   post:
+ *     tags: [User]
  *     summary: Registra um novo usuário
  *     description: Registra um novo usuário
  *     requestBody:
@@ -40,6 +41,7 @@ router.post("/register", userController.register);
  * @swagger
  * /user/login:
  *   post:
+ *     tags: [User]
  *     summary: Realiza o login de um usuário
  *     description: Realiza o login de um usuário
  *     requestBody:
