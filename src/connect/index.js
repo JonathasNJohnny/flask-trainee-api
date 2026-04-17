@@ -40,6 +40,27 @@ const getDb = async () => {
   return connectedClient.db(MONGODB_DB_NAME);
 };
 
+const getCollection = async (collectionName, options = {}) => {
+  const { mustExist = false } = options;
+  const db = await getDb();
+
+  if (mustExist) {
+    const collectionExists = await db
+      .listCollections({ name: collectionName }, { nameOnly: true })
+      .hasNext();
+
+    if (!collectionExists) {
+      const error = new Error(
+        `Tabela '${collectionName}' nao existe. Rode as migrations antes de usar o sistema.`,
+      );
+      error.status = 500;
+      throw error;
+    }
+  }
+
+  return db.collection(collectionName);
+};
+
 const pingDatabase = async () => {
   const connectedClient = await connectClient();
   await connectedClient.db("admin").command({ ping: 1 });
@@ -47,5 +68,6 @@ const pingDatabase = async () => {
 
 export const connect = {
   getDb,
+  getCollection,
   pingDatabase,
 };

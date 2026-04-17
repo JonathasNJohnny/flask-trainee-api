@@ -36,15 +36,21 @@ const comparePassword = (password, storedHash) => {
 };
 
 const sanitizeUser = (user) => ({
-  id: user.id,
+  id: String(user._id || ""),
   name: user.name,
   email: user.email,
-  dateOfBirth: user.dateOfBirth,
-  createdAt: user.createdAt,
+  dateOfBirth: user.date_of_birth,
+  createdAt: user.created_at,
+  phone: user.phone || null,
+  githubUrl: user.github_url || null,
+  linkedinUrl: user.linkedin_url || null,
+  portfolioUrl: user.portfolio_url || null,
+  pfpUrl: user.pfp_url || null,
 });
 
 const validateRegisterPayload = (payload) => {
-  const { name, email, password, dateOfBirth } = payload || {};
+  const { name, email, password } = payload || {};
+  const dateOfBirth = payload?.dateOfBirth || payload?.date_of_birth;
 
   if (!name || !email || !password || !dateOfBirth) {
     throwHttpError(400, "Todos os campos sao obrigatorios");
@@ -81,7 +87,7 @@ const getJwtSecret = () => process.env.JWT_SECRET || "dev_secret_change_me";
 const generateAuthResponse = (user) => {
   const token = jwt.sign(
     {
-      sub: user.id,
+      sub: String(user._id || ""),
       name: user.name,
       email: user.email,
     },
@@ -107,15 +113,29 @@ const register = async (payload) => {
   }
 
   const now = new Date().toISOString();
+  const dateOfBirth = payload?.dateOfBirth || payload?.date_of_birth;
 
   const userToCreate = {
-    id: crypto.randomUUID(),
     name: String(payload.name).trim(),
     email: normalizedEmail,
-    passwordHash: hashPassword(String(payload.password)),
-    dateOfBirth: String(payload.dateOfBirth),
-    createdAt: now,
+    password_hash: hashPassword(String(payload.password)),
+    date_of_birth: String(dateOfBirth),
+    created_at: now,
   };
+
+  const optionalFields = {
+    phone: payload?.phone,
+    github_url: payload?.github_url,
+    linkedin_url: payload?.linkedin_url,
+    portfolio_url: payload?.portfolio_url,
+    pfp_url: payload?.pfp_url,
+  };
+
+  for (const [key, value] of Object.entries(optionalFields)) {
+    if (typeof value === "string" && value.trim()) {
+      userToCreate[key] = value.trim();
+    }
+  }
 
   const createdUser = await userRepository.create(userToCreate);
 
@@ -134,7 +154,7 @@ const login = async (payload) => {
 
   const isPasswordValid = comparePassword(
     String(payload.password),
-    user.passwordHash,
+    user.password_hash,
   );
 
   if (!isPasswordValid) {

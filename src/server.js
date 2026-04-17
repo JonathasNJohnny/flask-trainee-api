@@ -1,8 +1,10 @@
 import "dotenv/config";
 import app from "./app.js";
 import { connect } from "./connect/index.js";
+import { migrations } from "./migrations/index.js";
 
 const startServer = async () => {
+  await migrations.runMigrations();
   await connect.pingDatabase();
   console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
