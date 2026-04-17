@@ -2,11 +2,11 @@ import { userService } from "../../services/user/index.js";
 
 const register = async (req, res) => {
   try {
-    const user = await userService.register(req.body);
+    const auth = await userService.register(req.body);
 
     return res.status(201).json({
-      message: "Usuario registrado com sucesso",
-      user,
+      message: "Usuario registrado e autenticado com sucesso",
+      ...auth,
     });
   } catch (error) {
     return res.status(error.status || 500).json({

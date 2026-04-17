@@ -78,6 +78,24 @@ const validateLoginPayload = (payload) => {
 
 const getJwtSecret = () => process.env.JWT_SECRET || "dev_secret_change_me";
 
+const generateAuthResponse = (user) => {
+  const token = jwt.sign(
+    {
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+    },
+    getJwtSecret(),
+    { expiresIn: JWT_EXPIRATION },
+  );
+
+  return {
+    token,
+    expiresIn: JWT_EXPIRATION,
+    user: sanitizeUser(user),
+  };
+};
+
 const register = async (payload) => {
   validateRegisterPayload(payload);
 
@@ -101,7 +119,7 @@ const register = async (payload) => {
 
   const createdUser = await userRepository.create(userToCreate);
 
-  return sanitizeUser(createdUser);
+  return generateAuthResponse(createdUser);
 };
 
 const login = async (payload) => {
@@ -123,21 +141,7 @@ const login = async (payload) => {
     throwHttpError(401, "Email ou senha invalidos");
   }
 
-  const token = jwt.sign(
-    {
-      sub: user.id,
-      name: user.name,
-      email: user.email,
-    },
-    getJwtSecret(),
-    { expiresIn: JWT_EXPIRATION },
-  );
-
-  return {
-    token,
-    expiresIn: JWT_EXPIRATION,
-    user: sanitizeUser(user),
-  };
+  return generateAuthResponse(user);
 };
 
 export const userService = {
