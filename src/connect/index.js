@@ -1,77 +1,73 @@
-import { promises as fs } from "fs";
-import path from "path";
+import { MongoClient, ServerApiVersion } from "mongodb";
+import dns from "node:dns";
 
-const FAKE_DB_PATH = path.resolve(process.cwd(), "src", "fakedb.txt");
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME || "trainee";
+const DNS_SERVERS = (process.env.DNS_SERVERS || "8.8.8.8,1.1.1.1")
+  .split(",")
+  .map((server) => server.trim())
+  .filter(Boolean);
 
-const createEmptyDb = () => ({
-  users: [],
+if (DNS_SERVERS.length) {
+  dns.setServers(DNS_SERVERS);
+}
+
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI nao foi definido no .env");
+}
+
+const client = new MongoClient(MONGODB_URI, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
 });
 
-const ensureDbFile = async () => {
-  await fs.mkdir(path.dirname(FAKE_DB_PATH), { recursive: true });
+let isConnected = false;
 
-  try {
-    await fs.access(FAKE_DB_PATH);
-  } catch {
-    await fs.writeFile(
-      FAKE_DB_PATH,
-      JSON.stringify(createEmptyDb(), null, 2),
-      "utf-8",
-    );
+const connectClient = async () => {
+  if (!isConnected) {
+    await client.connect();
+    isConnected = true;
   }
+
+  return client;
 };
 
-const readDb = async () => {
-  await ensureDbFile();
+const getDb = async () => {
+  const connectedClient = await connectClient();
+  return connectedClient.db(MONGODB_DB_NAME);
+};
 
-  const content = await fs.readFile(FAKE_DB_PATH, "utf-8");
+const getCollection = async (collectionName, options = {}) => {
+  const { mustExist = false } = options;
+  const db = await getDb();
 
-  if (!content.trim()) {
-    const emptyDb = createEmptyDb();
-    await fs.writeFile(FAKE_DB_PATH, JSON.stringify(emptyDb, null, 2), "utf-8");
-    return emptyDb;
-  }
+  if (mustExist) {
+    const collectionExists = await db
+      .listCollections({ name: collectionName }, { nameOnly: true })
+      .hasNext();
 
-  try {
-    const parsed = JSON.parse(content);
-
-    if (!parsed || typeof parsed !== "object") {
-      const emptyDb = createEmptyDb();
-      await fs.writeFile(
-        FAKE_DB_PATH,
-        JSON.stringify(emptyDb, null, 2),
-        "utf-8",
+    if (!collectionExists) {
+      const error = new Error(
+        `Tabela '${collectionName}' nao existe. Rode as migrations antes de usar o sistema.`,
       );
-      return emptyDb;
+      error.status = 500;
+      throw error;
     }
-
-    return parsed;
-  } catch {
-    const emptyDb = createEmptyDb();
-    await fs.writeFile(FAKE_DB_PATH, JSON.stringify(emptyDb, null, 2), "utf-8");
-    return emptyDb;
   }
+
+  return db.collection(collectionName);
 };
 
-const writeDb = async (db) => {
-  await ensureDbFile();
-  await fs.writeFile(FAKE_DB_PATH, JSON.stringify(db, null, 2), "utf-8");
-};
-
-const readTable = async (tableName) => {
-  const db = await readDb();
-  const table = db[tableName];
-
-  return Array.isArray(table) ? table : [];
-};
-
-const writeTable = async (tableName, items) => {
-  const db = await readDb();
-  db[tableName] = Array.isArray(items) ? items : [];
-  await writeDb(db);
+const pingDatabase = async () => {
+  const connectedClient = await connectClient();
+  await connectedClient.db("admin").command({ ping: 1 });
 };
 
 export const connect = {
-  readTable,
-  writeTable,
+  getDb,
+  getCollection,
+  pingDatabase,
 };
