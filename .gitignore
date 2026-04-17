@@ -2,7 +2,7 @@
 *.log
 *.pyc
 __pycache__
+.env
 
 
 /node_modules
-/src/fakedb.txt

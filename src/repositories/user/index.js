@@ -1,23 +1,18 @@
 import { connect } from "../../connect/index.js";
 
-const readUsers = async () => {
-  return connect.readTable("users");
-};
-
-const writeUsers = async (users) => {
-  await connect.writeTable("users", users);
+const getUsersCollection = async () => {
+  const db = await connect.getDb();
+  return db.collection("users");
 };
 
 const findByEmail = async (email) => {
-  const users = await readUsers();
-  return users.find((user) => user.email === email) || null;
+  const usersCollection = await getUsersCollection();
+  return usersCollection.findOne({ email });
 };
 
 const create = async (userData) => {
-  const users = await readUsers();
-  users.push(userData);
-  await writeUsers(users);
-
+  const usersCollection = await getUsersCollection();
+  await usersCollection.insertOne(userData);
   return userData;
 };
 
