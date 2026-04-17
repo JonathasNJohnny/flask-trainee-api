@@ -33,7 +33,7 @@ const router = Router();
  *                 format: date
  *     responses:
  *       201:
- *         description: Usuário criado
+ *         description: Usuário criado e autenticado com token JWT
  */
 router.post("/register", userController.register);
 
