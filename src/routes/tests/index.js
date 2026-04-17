@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { testFromTest } from "../../controllers/tests/index.js";
+import { testController } from "../../controllers/tests/index.js";
 
 const router = Router();
 
@@ -14,7 +14,7 @@ const router = Router();
  *         description: Sucesso
  */
 router.get("/test", (req, res) => {
-  const result = testFromTest();
+  const result = testController.testFromTest();
   res.send(result);
 });
 
