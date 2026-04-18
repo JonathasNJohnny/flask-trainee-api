@@ -16,6 +16,7 @@ const STUDENT_SCHEMA = {
     linkedin_url: { bsonType: "string" },
     portfolio_url: { bsonType: "string" },
     pfp_url: { bsonType: "string" },
+    // cv_url: { bsonType: "string" },
   },
 };
 
