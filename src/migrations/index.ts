@@ -1,11 +1,17 @@
+import type { Db } from "mongodb";
 import { migration001CreateStudentsCollection } from "./001-create-users-collection.js";
 import { connect } from "../connect/index.js";
+
+type Migration = {
+  id: string;
+  up: (db: Db) => Promise<void>;
+};
 
 const MIGRATIONS = [migration001CreateStudentsCollection];
 
 const MIGRATIONS_COLLECTION = "_migrations";
 
-const runMigrations = async () => {
+const runMigrations = async (): Promise<void> => {
   const db = await connect.getDb();
   const migrationsCollection = db.collection(MIGRATIONS_COLLECTION);
 

@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { Collection, Document, MongoClient, ServerApiVersion } from "mongodb";
 import dns from "node:dns";
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -26,7 +26,15 @@ const client = new MongoClient(MONGODB_URI, {
 
 let isConnected = false;
 
-const connectClient = async () => {
+type CollectionOptions = {
+  mustExist?: boolean;
+};
+
+type HttpError = Error & {
+  status?: number;
+};
+
+const connectClient = async (): Promise<MongoClient> => {
   if (!isConnected) {
     await client.connect();
     isConnected = true;
@@ -40,7 +48,10 @@ const getDb = async () => {
   return connectedClient.db(MONGODB_DB_NAME);
 };
 
-const getCollection = async (collectionName, options = {}) => {
+const getCollection = async <TSchema extends Document = Document>(
+  collectionName: string,
+  options: CollectionOptions = {},
+): Promise<Collection<TSchema>> => {
   const { mustExist = false } = options;
   const db = await getDb();
 
@@ -50,7 +61,7 @@ const getCollection = async (collectionName, options = {}) => {
       .hasNext();
 
     if (!collectionExists) {
-      const error = new Error(
+      const error: HttpError = new Error(
         `Tabela '${collectionName}' nao existe. Rode as migrations antes de usar o sistema.`,
       );
       error.status = 500;
@@ -61,7 +72,7 @@ const getCollection = async (collectionName, options = {}) => {
   return db.collection(collectionName);
 };
 
-const pingDatabase = async () => {
+const pingDatabase = async (): Promise<void> => {
   const connectedClient = await connectClient();
   await connectedClient.db("admin").command({ ping: 1 });
 };

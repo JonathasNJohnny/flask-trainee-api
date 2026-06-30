@@ -1,27 +1,39 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { userRepository } from "../../repositories/user/index.js";
+import type {
+  AuthResponse,
+  LoginPayload,
+  RegisterPayload,
+  SanitizedUser,
+  Student,
+  StudentToCreate,
+} from "../../types/user.js";
 
 const JWT_EXPIRATION = "15m";
 
-const throwHttpError = (status, message) => {
-  const error = new Error(message);
+type HttpError = Error & {
+  status?: number;
+};
+
+const throwHttpError = (status: number, message: string): never => {
+  const error: HttpError = new Error(message);
   error.status = status;
   throw error;
 };
 
-const normalizeEmail = (email) =>
+const normalizeEmail = (email: unknown): string =>
   String(email || "")
     .trim()
     .toLowerCase();
 
-const hashPassword = (password) => {
+const hashPassword = (password: string): string => {
   const salt = crypto.randomBytes(16).toString("hex");
   const hashed = crypto.scryptSync(password, salt, 64).toString("hex");
   return `${salt}:${hashed}`;
 };
 
-const comparePassword = (password, storedHash) => {
+const comparePassword = (password: string, storedHash: string): boolean => {
   const [salt, hashed] = String(storedHash || "").split(":");
 
   if (!salt || !hashed) {
@@ -35,7 +47,7 @@ const comparePassword = (password, storedHash) => {
   );
 };
 
-const sanitizeUser = (user) => ({
+const sanitizeUser = (user: Student): SanitizedUser => ({
   id: String(user._id || ""),
   name: user.name,
   email: user.email,
@@ -48,7 +60,7 @@ const sanitizeUser = (user) => ({
   pfpUrl: user.pfp_url || null,
 });
 
-const validateRegisterPayload = (payload) => {
+const validateRegisterPayload = (payload: RegisterPayload): void => {
   const { name, email, password } = payload || {};
   const dateOfBirth = payload?.dateOfBirth || payload?.date_of_birth;
 
@@ -69,12 +81,12 @@ const validateRegisterPayload = (payload) => {
     throwHttpError(400, "Senha deve ter no minimo 8 caracteres");
   }
 
-  if (Number.isNaN(Date.parse(dateOfBirth))) {
+  if (Number.isNaN(Date.parse(String(dateOfBirth)))) {
     throwHttpError(400, "Data de nascimento invalida");
   }
 };
 
-const validateLoginPayload = (payload) => {
+const validateLoginPayload = (payload: LoginPayload): void => {
   const { email, password } = payload || {};
 
   if (!email || !password) {
@@ -82,9 +94,9 @@ const validateLoginPayload = (payload) => {
   }
 };
 
-const getJwtSecret = () => process.env.JWT_SECRET || "dev_secret_change_me";
+const getJwtSecret = (): string => process.env.JWT_SECRET || "dev_secret_change_me";
 
-const generateAuthResponse = (user) => {
+const generateAuthResponse = (user: Student): AuthResponse => {
   const token = jwt.sign(
     {
       sub: String(user._id || ""),
@@ -102,7 +114,7 @@ const generateAuthResponse = (user) => {
   };
 };
 
-const register = async (payload) => {
+const register = async (payload: RegisterPayload): Promise<AuthResponse> => {
   validateRegisterPayload(payload);
 
   const normalizedEmail = normalizeEmail(payload.email);
@@ -115,7 +127,7 @@ const register = async (payload) => {
   const now = new Date().toISOString();
   const dateOfBirth = payload?.dateOfBirth || payload?.date_of_birth;
 
-  const userToCreate = {
+  const userToCreate: StudentToCreate = {
     name: String(payload.name).trim(),
     email: normalizedEmail,
     password_hash: hashPassword(String(payload.password)),
@@ -123,7 +135,13 @@ const register = async (payload) => {
     created_at: now,
   };
 
-  const optionalFields = {
+  const optionalFields: Record<
+    keyof Pick<
+      StudentToCreate,
+      "phone" | "github_url" | "linkedin_url" | "portfolio_url" | "pfp_url"
+    >,
+    unknown
+  > = {
     phone: payload?.phone,
     github_url: payload?.github_url,
     linkedin_url: payload?.linkedin_url,
@@ -131,7 +149,9 @@ const register = async (payload) => {
     pfp_url: payload?.pfp_url,
   };
 
-  for (const [key, value] of Object.entries(optionalFields)) {
+  for (const [key, value] of Object.entries(optionalFields) as Array<
+    [keyof typeof optionalFields, unknown]
+  >) {
     if (typeof value === "string" && value.trim()) {
       userToCreate[key] = value.trim();
     }
@@ -142,7 +162,7 @@ const register = async (payload) => {
   return generateAuthResponse(createdUser);
 };
 
-const login = async (payload) => {
+const login = async (payload: LoginPayload): Promise<AuthResponse> => {
   validateLoginPayload(payload);
 
   const normalizedEmail = normalizeEmail(payload.email);
@@ -154,14 +174,14 @@ const login = async (payload) => {
 
   const isPasswordValid = comparePassword(
     String(payload.password),
-    user.password_hash,
+    user!.password_hash,
   );
 
   if (!isPasswordValid) {
     throwHttpError(401, "Email ou senha invalidos");
   }
 
-  return generateAuthResponse(user);
+  return generateAuthResponse(user!);
 };
 
 export const userService = {

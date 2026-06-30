@@ -1,15 +1,21 @@
+import type { MongoServerError } from "mongodb";
 import { connect } from "../../connect/index.js";
+import type { Student, StudentToCreate } from "../../types/user.js";
 
-const getStudentsCollection = async () => {
-  return connect.getCollection("students", { mustExist: true });
+type HttpError = Error & {
+  status?: number;
 };
 
-const findByEmail = async (email) => {
+const getStudentsCollection = async () => {
+  return connect.getCollection<Student>("students", { mustExist: true });
+};
+
+const findByEmail = async (email: string): Promise<Student | null> => {
   const studentsCollection = await getStudentsCollection();
   return studentsCollection.findOne({ email });
 };
 
-const create = async (userData) => {
+const create = async (userData: StudentToCreate): Promise<Student> => {
   const studentsCollection = await getStudentsCollection();
 
   try {
@@ -18,15 +24,17 @@ const create = async (userData) => {
       ...userData,
       _id: result.insertedId,
     };
-  } catch (error) {
-    if (error?.code === 11000) {
-      const conflictError = new Error("Ja existe usuario com esse email");
+  } catch (error: unknown) {
+    const mongoError = error as MongoServerError;
+
+    if (mongoError?.code === 11000) {
+      const conflictError: HttpError = new Error("Ja existe usuario com esse email");
       conflictError.status = 409;
       throw conflictError;
     }
 
-    if (error?.code === 121) {
-      const schemaError = new Error(
+    if (mongoError?.code === 121) {
+      const schemaError: HttpError = new Error(
         "Estrutura de dados invalida para a tabela students. Verifique as migrations.",
       );
       schemaError.status = 400;
