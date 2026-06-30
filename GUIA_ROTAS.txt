@@ -1,0 +1,353 @@
+GUIA DE FUNCIONAMENTO DA API E CRIACAO DE ROTAS
+
+1. Visao geral
+
+Este projeto e uma API Node.js com TypeScript usando Express e MongoDB.
+
+O fluxo principal e:
+
+Requisicao HTTP
+-> rota em src/routes
+-> controller em src/controllers
+-> service em src/services
+-> repository em src/repositories
+-> MongoDB, quando a rota precisa acessar dados
+
+Arquivos principais:
+
+- src/server.ts
+  Inicia a API, roda as migrations, testa a conexao com MongoDB e sobe o servidor na porta 43321.
+
+- src/app.ts
+  Configura o Express, CORS, JSON, Swagger em /docs e registra todas as rotas.
+
+- src/routes/index.ts
+  Junta os grupos de rotas da aplicacao.
+  Exemplo atual:
+  router.use("/test", testRoutes);
+  router.use("/user", userRoutes);
+
+- src/config/swagger.ts
+  Configura a documentacao Swagger.
+  A documentacao fica disponivel em:
+  http://localhost:43321/docs
+
+- src/connect/index.ts
+  Centraliza a conexao com MongoDB.
+
+2. Como rodar o projeto
+
+Instalar dependencias:
+
+npm install
+
+Rodar em desenvolvimento:
+
+npm run dev
+
+Gerar build:
+
+npm run build
+
+Rodar build:
+
+npm start
+
+Verificar TypeScript:
+
+npm run typecheck
+
+3. Variaveis de ambiente
+
+O projeto usa dotenv e le o arquivo .env.
+
+Variaveis importantes:
+
+- MONGODB_URI
+  String de conexao do MongoDB. Obrigatoria.
+
+- MONGODB_DB_NAME
+  Nome do banco. Se nao for definida, usa "trainee".
+
+- JWT_SECRET
+  Chave usada para assinar tokens JWT.
+  Se nao for definida, o projeto usa uma chave padrao de desenvolvimento.
+
+- API_BASE_URL
+  URL base usada pelo Swagger quando nao estiver na Vercel.
+
+- VERCEL_URL
+  Usada automaticamente em deploy na Vercel.
+
+4. Rotas existentes
+
+Rota de teste:
+
+GET /test/test
+
+Retorna:
+
+API Working!
+
+Rotas de usuario:
+
+POST /user/register
+
+Cria um usuario e retorna um token JWT.
+
+Body esperado:
+
+{
+  "name": "Nome do usuario",
+  "email": "email@exemplo.com",
+  "password": "senha1234",
+  "dateOfBirth": "2000-01-01"
+}
+
+POST /user/login
+
+Faz login e retorna um token JWT.
+
+Body esperado:
+
+{
+  "email": "email@exemplo.com",
+  "password": "senha1234"
+}
+
+5. Como criar uma nova rota simples
+
+Exemplo: criar um modulo "course" com a rota GET /course/list.
+
+Passo 1: criar o controller
+
+Crie o arquivo:
+
+src/controllers/course/index.ts
+
+Exemplo:
+
+const list = async () => {
+  return [
+    { id: 1, name: "Node.js" },
+    { id: 2, name: "TypeScript" }
+  ];
+};
+
+export const courseController = {
+  list,
+};
+
+Passo 2: criar o arquivo de rotas
+
+Crie o arquivo:
+
+src/routes/course/index.ts
+
+Exemplo:
+
+import { Router } from "express";
+import { courseController } from "../../controllers/course/index.js";
+
+const router = Router();
+
+/**
+ * @swagger
+ * /course/list:
+ *   get:
+ *     tags: [Course]
+ *     summary: Lista cursos
+ *     description: Retorna a lista de cursos
+ *     responses:
+ *       200:
+ *         description: Sucesso
+ */
+router.get("/list", async (_req, res) => {
+  const courses = await courseController.list();
+  return res.status(200).json(courses);
+});
+
+export default router;
+
+Passo 3: registrar o grupo de rotas
+
+Abra:
+
+src/routes/index.ts
+
+Adicione o import:
+
+import courseRoutes from "./course/index.js";
+
+Depois registre o prefixo:
+
+router.use("/course", courseRoutes);
+
+Com isso, a rota final sera:
+
+GET /course/list
+
+6. Como criar uma rota seguindo o padrao completo
+
+Para funcionalidades maiores, use a divisao:
+
+- routes: define URL, metodo HTTP e documentacao Swagger.
+- controllers: recebe req/res, chama service e monta a resposta HTTP.
+- services: valida dados, aplica regras de negocio e decide o fluxo.
+- repositories: acessa o banco de dados.
+- types: define tipos TypeScript usados no modulo.
+
+Exemplo de estrutura para um modulo "course":
+
+src/routes/course/index.ts
+src/controllers/course/index.ts
+src/services/course/index.ts
+src/repositories/course/index.ts
+src/types/course.ts
+
+7. Exemplo de controller com tratamento de erro
+
+import type { Request, Response } from "express";
+import { courseService } from "../../services/course/index.js";
+
+type HttpError = Error & {
+  status?: number;
+};
+
+const create = async (req: Request, res: Response) => {
+  try {
+    const course = await courseService.create(req.body);
+
+    return res.status(201).json({
+      message: "Curso criado com sucesso",
+      course,
+    });
+  } catch (error: unknown) {
+    const httpError = error as HttpError;
+
+    return res.status(httpError.status || 500).json({
+      message: httpError.message || "Erro ao criar curso",
+    });
+  }
+};
+
+export const courseController = {
+  create,
+};
+
+8. Exemplo de service
+
+type HttpError = Error & {
+  status?: number;
+};
+
+const throwHttpError = (status: number, message: string): never => {
+  const error: HttpError = new Error(message);
+  error.status = status;
+  throw error;
+};
+
+const create = async (payload: any) => {
+  if (!payload?.name) {
+    throwHttpError(400, "Nome e obrigatorio");
+  }
+
+  return {
+    name: String(payload.name).trim(),
+  };
+};
+
+export const courseService = {
+  create,
+};
+
+9. Exemplo de repository com MongoDB
+
+import { connect } from "../../connect/index.js";
+
+type Course = {
+  name: string;
+  created_at: string;
+};
+
+const getCoursesCollection = async () => {
+  return connect.getCollection<Course>("courses", { mustExist: true });
+};
+
+const create = async (courseData: Course) => {
+  const coursesCollection = await getCoursesCollection();
+  const result = await coursesCollection.insertOne(courseData);
+
+  return {
+    ...courseData,
+    _id: result.insertedId,
+  };
+};
+
+export const courseRepository = {
+  create,
+};
+
+Observacao:
+
+Se usar mustExist: true, a collection precisa existir no banco.
+Normalmente isso deve ser garantido por uma migration.
+
+10. Como documentar no Swagger
+
+As rotas sao documentadas com comentarios @swagger dentro dos arquivos em:
+
+src/routes/**/*.ts
+
+O Swagger le automaticamente esses arquivos porque src/config/swagger.ts esta configurado com:
+
+apis: ["./src/routes/**/*.ts", "./dist/routes/**/*.js"]
+
+Depois de criar ou alterar a documentacao, abra:
+
+http://localhost:43321/docs
+
+11. Padrao de importacao importante
+
+Mesmo usando TypeScript, este projeto esta configurado como modulo ES:
+
+"type": "module"
+
+Por isso os imports internos usam extensao .js:
+
+import userRoutes from "./user/index.js";
+
+Nao use:
+
+import userRoutes from "./user";
+
+12. Checklist para criar uma nova rota
+
+1. Criar controller em src/controllers/NOME/index.ts.
+2. Se tiver regra de negocio, criar service em src/services/NOME/index.ts.
+3. Se acessar banco, criar repository em src/repositories/NOME/index.ts.
+4. Se precisar de tipos, criar src/types/NOME.ts.
+5. Criar arquivo de rota em src/routes/NOME/index.ts.
+6. Documentar a rota com @swagger.
+7. Registrar o grupo em src/routes/index.ts.
+8. Rodar npm run typecheck.
+9. Rodar npm run dev e testar a rota.
+10. Conferir a documentacao em /docs.
+
+13. Boas praticas neste projeto
+
+- Deixe a rota responsavel apenas por URL, metodo HTTP e chamada do controller.
+- Deixe o controller responsavel por req, res e status HTTP.
+- Coloque validacoes e regras de negocio no service.
+- Coloque acesso ao MongoDB no repository.
+- Nao retorne senha, hash de senha ou dados sensiveis nas respostas.
+- Use status HTTP corretos:
+  200 para sucesso comum.
+  201 para criacao.
+  400 para dados invalidos.
+  401 para login invalido ou falta de autenticacao.
+  404 para recurso nao encontrado.
+  409 para conflito, como email duplicado.
+  500 para erro interno.
+- Depois de criar rota nova, sempre rode npm run typecheck.
+

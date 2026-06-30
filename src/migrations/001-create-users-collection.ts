@@ -1,3 +1,5 @@
+import type { Db } from "mongodb";
+
 const COLLECTION_NAME = "students";
 
 const STUDENT_SCHEMA = {
@@ -20,7 +22,7 @@ const STUDENT_SCHEMA = {
   },
 };
 
-const createStudentsCollection = async (db) => {
+const createStudentsCollection = async (db: Db): Promise<void> => {
   const collectionExists = await db
     .listCollections({ name: COLLECTION_NAME }, { nameOnly: true })
     .hasNext();
