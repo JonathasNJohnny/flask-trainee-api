@@ -1,5 +1,6 @@
 import type { Db } from "mongodb";
 import { migration001CreateStudentsCollection } from "./001-create-users-collection.js";
+import { migration002CreateEnterprisesCollection } from "./002-create-enterprises-collection.js";
 import { connect } from "../connect/index.js";
 
 type Migration = {
@@ -7,7 +8,10 @@ type Migration = {
   up: (db: Db) => Promise<void>;
 };
 
-const MIGRATIONS = [migration001CreateStudentsCollection];
+const MIGRATIONS = [
+  migration001CreateStudentsCollection,
+  migration002CreateEnterprisesCollection,
+];
 
 const MIGRATIONS_COLLECTION = "_migrations";
 
