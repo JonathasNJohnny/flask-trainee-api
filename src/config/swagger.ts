@@ -24,10 +24,10 @@ const options = {
     ],
   },
   apis: [
-    path.resolve(__dirname, "./routes/**/*.ts"),
-    path.resolve(__dirname, "./routes/**/*.js"),
-    path.resolve(__dirname, "../src/routes/**/*.ts"),
-    path.resolve(__dirname, "../dist/routes/**/*.js"),
+    path.resolve(process.cwd(), "src/routes/**/*.ts"),
+    path.resolve(process.cwd(), "dist/routes/**/*.js"),
+    path.resolve(__dirname, "../routes/**/*.ts"),
+    path.resolve(__dirname, "../routes/**/*.js"),
   ],
 };
 
