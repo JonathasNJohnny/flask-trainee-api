@@ -1,4 +1,9 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const serverUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -18,7 +23,12 @@ const options = {
       },
     ],
   },
-  apis: ["./src/routes/**/*.ts", "./dist/routes/**/*.js"],
+  apis: [
+    path.resolve(__dirname, "./routes/**/*.ts"),
+    path.resolve(__dirname, "./routes/**/*.js"),
+    path.resolve(__dirname, "../src/routes/**/*.ts"),
+    path.resolve(__dirname, "../dist/routes/**/*.js"),
+  ],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
